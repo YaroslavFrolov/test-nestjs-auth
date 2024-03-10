@@ -96,19 +96,23 @@ export class AuthService {
   }
 
   async logout(body: RefreshDTO): Promise<JwtPayload> {
+    let jwtPayload = {} as JwtPayload;
     try {
-      const jwtPayload = jwt.verify(
+      jwtPayload = jwt.verify(
         body.refresh_token,
         this.configService.get('REFRESH_TOKEN_KEY'),
       ) as JwtPayload;
-
-      const session = redisKey(jwtPayload.userId, body.refresh_token);
-
-      await this.redisClient.del(session);
-
-      return jwtPayload;
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const session = redisKey(jwtPayload.userId, body.refresh_token);
+    const isSessionWasExist = await this.redisClient.del(session);
+
+    if (isSessionWasExist) {
+      return jwtPayload;
+    } else {
+      throw new UnauthorizedException("Can't find refresh token in sessions");
     }
   }
 
