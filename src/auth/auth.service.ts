@@ -15,7 +15,6 @@ import {
 } from './auth.dto';
 import { UsersService } from '../users/users.service';
 import { ConfigService } from '../config/config.service';
-import { ROLES } from './roles.guard';
 
 import type Redis from 'ioredis';
 
@@ -44,18 +43,6 @@ export class AuthService {
      * to make bad things.
      */
     this.redisClient = redisService.getClient('__sessions__');
-  }
-
-  // for dev purpose
-  async onModuleInit() {
-    const admin = await this.usersService.getUserByName('admin');
-    if (!admin) {
-      const hashPassword = await bcrypt.hash('123456', 10);
-      this.usersService.createUser('admin', hashPassword, [
-        ROLES.ADMIN,
-        ROLES.USER,
-      ]);
-    }
   }
 
   async register(body: RegisterDTO): Promise<number> {
