@@ -103,7 +103,7 @@ export class AuthService {
         this.configService.get('REFRESH_TOKEN_KEY'),
       ) as JwtPayload;
     } catch {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new BadRequestException('Invalid refresh token');
     }
 
     const session = redisKey(jwtPayload.userId, body.refresh_token);
@@ -112,7 +112,7 @@ export class AuthService {
     if (isSessionWasExist) {
       return jwtPayload;
     } else {
-      throw new UnauthorizedException("Can't find refresh token in sessions");
+      throw new BadRequestException("Can't find refresh token in sessions");
     }
   }
 
