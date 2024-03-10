@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+  db:
+    image: postgres:12-bullseye
+    restart: always
+    environment:
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USER
+      POSTGRES_PASSWORD: $DB_PASS
+    container_name: postgres
+    ports:
+      - '$PORT_DB:$PORT_DB'
+
+  redis:
+    image: redis:7.0.10
+    restart: always
+    ports:
+      - '$PORT_REDIS:$PORT_REDIS'
+    container_name: redis-db
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nest-app
+    ports:
+      - '$PORT_APP:$PORT_APP'
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./src:/app/src
