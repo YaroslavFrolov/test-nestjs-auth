@@ -71,21 +71,16 @@ export class AuthService {
     }
   }
 
+  // jwt strategy only
   async login(body: LoginDTO): Promise<TokensDTO> {
     const existUser = await this.usersService.getUserByName(body.name);
 
-    if (!existUser) {
-      throw new BadRequestException(
-        'Invalid credentials or user does not exist',
-      );
-    }
-
     const isValidPassword = await bcrypt.compare(
       body.password,
-      existUser.password,
+      existUser?.password || '',
     );
 
-    if (!isValidPassword) {
+    if (!existUser || !isValidPassword) {
       throw new BadRequestException(
         'Invalid credentials or user does not exist',
       );
